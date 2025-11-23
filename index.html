@@ -2,199 +2,457 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo Lubricentro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AMELI'S - Moda & Estilo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        /* --- ESTILOS (CSS) --- */
+        /* --- CONFIGURACIÓN GENERAL --- */
         :root {
-            --primary-color: #0056b3;
-            --accent-color: #ffcc00;
-            --bg-color: #f4f4f4;
-            --text-color: #333;
-            --whatsapp-color: #25D366;
+            --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --blue-btn: #003366; 
+            --gold: #d4af37;
+            --cachina-color: #ff4757;
+            --footer-bg: #050e11;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            color: var(--text-color);
-        }
-
-        /* Cabecera */
-        header {
-            background-color: var(--primary-color);
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-gradient);
             color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        header h1 { margin: 0; }
-        header p { margin: 5px 0 0; opacity: 0.8; }
-
-        /* Filtros */
-        .filters {
-            padding: 20px;
-            text-align: center;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky; /* Mantiene los filtros visibles al bajar un poco */
-            top: 0;
-            z-index: 10;
-        }
-        .btn-filter {
-            padding: 10px 20px;
-            margin: 5px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: 0.3s;
-            font-weight: 500;
-        }
-        .btn-filter:hover, .btn-filter.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        /* Cuadrícula de Productos */
-        .catalog-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
-            padding-bottom: 80px; /* Espacio para no tapar el botón flotante */
-        }
-
-        /* Tarjeta de Producto */
-        .product-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            min-height: 100vh;
+            padding-bottom: 0;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        /* --- ENCABEZADO --- */
+        header {
+            padding: 20px 10px;
+            text-align: center;
+            background: rgba(15, 32, 39, 0.98);
+            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 15px;
+        }
+
+        .virtual-store-badge {
+            border: 1px solid var(--gold); color: var(--gold);
+            padding: 3px 10px; font-size: 0.6rem; border-radius: 20px;
+            text-transform: uppercase; font-weight: 600;
+            background: rgba(212, 175, 55, 0.1); display: inline-block; margin-bottom: 5px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif; font-size: 2.2rem;
+            margin: 0; line-height: 1; letter-spacing: 1px; color: white;
+        }
+        h1 span { color: var(--gold); }
+
+        .subtitle-tagline {
+            font-family: 'Montserrat', sans-serif; color: #ccc;
+            font-size: 0.8rem; font-weight: 300; letter-spacing: 1px; margin-top: 5px;
+        }
+
+        /* --- BUSCADOR --- */
+        .search-container { margin-top: 15px; display: flex; justify-content: center; }
+        .search-input {
+            padding: 10px 20px; border-radius: 25px; border: 1px solid var(--gold);
+            background: rgba(255,255,255,0.1); color: white; width: 90%; max-width: 400px;
+            text-align: center; outline: none; transition: 0.3s; font-size: 0.9rem;
+        }
+        .search-input:focus { background: rgba(255,255,255,0.2); width: 95%; }
+
+        /* --- MENÚ DE BOTONES --- */
+        .menu-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; 
+            padding: 5px 10px 15px 10px; 
+            flex-wrap: wrap; 
+        }
+        .btn-cat {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #ddd; padding: 8px 15px; border-radius: 20px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 500; transition: 0.3s;
+        }
+        .btn-cat:hover, .btn-cat.active { background: var(--gold); color: #0f2027; font-weight: 700; border-color: var(--gold); }
+        .btn-cat.btn-cachina { border-color: var(--cachina-color); color: #ff8fab; }
+        .btn-cat.btn-cachina:hover, .btn-cat.btn-cachina.active { background: var(--cachina-color); color: white; }
+
+        /* --- MENSAJES --- */
+        .category-message { text-align: center; min-height: 10px; margin-bottom: 10px; }
+        .cat-msg-text { background-color: rgba(255, 71, 87, 0.2); color: #ffb8b8; padding: 5px 15px; border-radius: 15px; font-size: 0.75rem; display: inline-block; border: 1px solid #ff4757; animation: fadeIn 0.5s; }
+        .loading { text-align: center; grid-column: 1/-1; padding: 40px; font-size: 1rem; color: #ddd; }
+
+        /* --- PRODUCTOS (GRILLA RESPONSIVA) --- */
+        .products-container {
+            max-width: 1200px; margin: 0 auto; padding: 10px;
+            display: grid; 
+            /* En PC se ajusta automático */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 20px;
+            flex: 1;
+        }
+
+        .product-card {
+            background: white; color: #333; border-radius: 10px;
+            overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: block; animation: fadeIn 0.6s; transition: transform 0.3s;
         }
         .product-card:hover { transform: translateY(-5px); }
 
-        .product-img {
-            width: 100%;
-            height: 200px;
-            object-fit: contain;
-            background-color: #fff;
-            padding: 10px;
-            box-sizing: border-box;
-            border-bottom: 1px solid #eee;
-        }
-        .product-info {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .category-tag {
-            font-size: 0.8em;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .product-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-        .price {
-            font-size: 1.3em;
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-top: auto;
-            padding-top: 10px;
-        }
+        .img-box { height: 220px; overflow: hidden; position: relative; background-color: #f4f4f4; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Botón "Pedir" dentro de la tarjeta */
-        .btn-card-whatsapp {
-            display: block;
-            width: 100%;
-            background-color: var(--whatsapp-color);
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        .btn-card-whatsapp:hover { background-color: #128C7E; }
+        .tag { position: absolute; top: 5px; left: 5px; background: var(--gold); color: #0f2027; padding: 2px 8px; font-size: 0.6rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; }
+        .tag-sale { background: var(--cachina-color); color: white; }
 
-        /* --- BOTÓN FLOTANTE WHATSAPP --- */
-        .float-wa {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 25px;
-            right: 25px;
-            background-color: var(--whatsapp-color);
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 30px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s;
+        .info-box { padding: 10px; text-align: center; }
+        
+        .p-title { font-weight: 800; font-size: 0.95rem; color: #002244; font-family: 'Montserrat', sans-serif; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+        .p-desc { font-size: 0.7rem; color: #666; margin-bottom: 5px; line-height: 1.1; height: 24px; overflow: hidden; }
+        .p-sizes { display: inline-block; font-size: 0.65rem; font-weight: 700; color: #444; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; margin-bottom: 8px; }
+        .p-price { display: block; color: #002244; font-weight: 900; font-size: 1.1rem; margin-bottom: 8px; }
+        
+        /* BOTONES */
+        .btn-add {
+            background-color: var(--blue-btn); color: white; width: 100%; padding: 8px;
+            border: none; border-radius: 6px; font-weight: 800; font-size: 0.85rem;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .float-wa:hover {
-            background-color: #128C7E;
-            transform: scale(1.1);
+        .btn-add:hover { background: var(--gold); color: black; }
+        
+        .btn-disabled {
+            background-color: #ccc; color: #666; width: 100%; padding: 8px;
+            border: none; border-radius: 6px; font-weight: 800; font-size: 0.85rem;
+            cursor: not-allowed; text-transform: uppercase; letter-spacing: 0.5px;
         }
+        .stock-alert { font-size: 0.65rem; color: #e74c3c; font-weight: bold; margin-bottom: 4px; }
 
+        /* --- FOOTER --- */
         footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
-            color: white;
+            background-color: var(--footer-bg); color: #ccc;
+            padding: 30px 15px; margin-top: 30px; text-align: center; border-top: 1px solid #203a43;
         }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: white; margin-bottom: 10px; }
+        .footer-logo span { color: var(--gold); }
+        .social-icons { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
+        .social-icons a { color: white; font-size: 1.3rem; transition: 0.3s; background: rgba(255,255,255,0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; }
+        .footer-info p { font-size: 0.85rem; margin-bottom: 5px; color: #888; }
+        .footer-copyright { margin-top: 20px; font-size: 0.7rem; opacity: 0.6; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+
+        /* --- CARRITO FLOTANTE --- */
+        .float-cart {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--gold); color: #0f2027;
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            cursor: pointer; border: 2px solid white; z-index: 2000;
+        }
+        .cart-count {
+            position: absolute; top: -2px; right: -2px;
+            background: var(--cachina-color); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white;
+        }
+
+        /* --- BOTÓN WHATSAPP FLOTANTE (IZQUIERDA) --- */
+        .btn-wsp-float {
+            position: fixed; bottom: 20px; left: 20px;
+            background-color: #25D366; color: white; width: 50px; height: 50px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 2000;
+            text-decoration: none; transition: transform 0.3s;
+        }
+        .btn-wsp-float:hover { transform: scale(1.1); }
+
+        /* MODALES */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
+        .cart-content { background: white; color: #333; width: 90%; max-width: 500px; border-radius: 15px; padding: 25px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        .cart-header h2 { font-family: 'Playfair Display'; color: #002244; font-size: 1.5rem; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px dashed #ddd; }
+        .item-left { flex: 1; } .item-name { font-weight: bold; color: #002244; font-size: 1rem; } .item-price { font-size: 0.85rem; color: #666; }
+        .item-right { display: flex; align-items: center; gap: 10px; }
+        .qty-box { background: #f0f2f5; display: flex; align-items: center; border-radius: 20px; padding: 2px 8px; }
+        .qty-btn { background: none; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; color: #003366; padding: 0 8px; }
+        .qty-num { font-weight: bold; font-size: 0.9rem; min-width: 20px; text-align: center; }
+        .btn-trash { background: #ffebee; color: #ff4757; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-whatsapp { display: block; background: #25D366; color: white; text-align: center; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); margin-bottom: 10px; transition: 0.3s; }
+        .btn-continue { display: block; background: transparent; color: #888; text-align: center; padding: 10px; border-radius: 12px; border: 1px solid #ddd; cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s; }
+        .cart-footer { margin-top: 20px; } .cart-total-row { display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: 900; color: #002244; margin-bottom: 20px; }
+
+        /* AVISO CACHINA */
+        .cachina-modal-content {
+            background: white; color: #333; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; border: 4px solid var(--cachina-color); position: relative;
+            animation: zoomIn 0.3s;
+        }
+        .cachina-modal-content h2 { color: var(--cachina-color); margin-bottom: 15px; font-family: 'Playfair Display'; }
+        .cachina-modal-content p { font-size: 1rem; margin-bottom: 20px; color: #555; line-height: 1.5; }
+        .btn-cachina-ok { background: var(--cachina-color); color: white; padding: 12px 25px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .close-cachina { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+
+        /* === REGLAS ESTRICTAS PARA CELULAR === */
+        @media (max-width: 600px) {
+            .products-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* FORZAR 2 COLUMNAS SIEMPRE */
+                gap: 10px;
+                padding: 10px;
+            }
+            .img-box { height: 180px; }
+            .info-box { padding: 8px; }
+            .p-title { font-size: 0.85rem; }
+            .btn-add { font-size: 0.75rem; padding: 8px 0; }
+        }
+
+        @keyframes zoomIn { from {transform: scale(0.5); opacity:0;} to {transform: scale(1); opacity:1;} }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Lubricentro MEGA</h1>
-        <p>Catálogo Online - Juliaca</p>
+        <div class="virtual-store-badge">TIENDA ONLINE</div>
+        <h1>AMELI<span>'</span>S</h1>
+        <div class="subtitle-tagline">Moda con Estilo Único</div>
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar prenda..." onkeyup="searchProducts()">
+        </div>
     </header>
 
-    <div class="filters">
-        <button class="btn-filter active" onclick="filterProducts('todos')">Todos</button>
-        <button class="btn-filter" onclick="filterProducts('aceites')">Aceites</button>
-        <button class="btn-filter" onclick="filterProducts('filtros')">Filtros</button>
-        <button class="btn-filter" onclick="filterProducts('aditivos')">Aditivos</button>
+    <div class="menu-container">
+        <button class="btn-cat active" onclick="filterProducts('todos', this)">Todo</button>
+        <button class="btn-cat" onclick="filterProducts('casacas', this)">Casacas</button> 
+        <button class="btn-cat" onclick="filterProducts('poleras', this)">Poleras</button>
+        <button class="btn-cat" onclick="filterProducts('polos', this)">Polos</button>
+        <button class="btn-cat" onclick="filterProducts('pantalones', this)">Pantalones</button>
+        <button class="btn-cat" onclick="filterProducts('shorts', this)">Shorts</button>
+        <button class="btn-cat" onclick="filterProducts('accesorios', this)">Accesorios</button>
+        <button class="btn-cat btn-cachina" onclick="filterProducts('cachina', this)">CACHINA 🔥</button>
     </div>
 
-    <div class="catalog-container" id="catalog">
-        
-        <div class="product-card" data-category="aceites">
-            <img src="https://via.placeholder.com/250x200?text=Shell+Helix" alt="Aceite" class="product-img">
-            <div class="product-info">
-                <span class="category-tag">Aceite</span>
-                <h3 class="product-title">Shell Helix HX7 10W-40 (4L)</h3>
-                <div class="price">S/ 120.00</div> <a href="https://wa.me/51904850808?text=Hola, me interesa el Shell Helix HX7 10W-40" class="btn-card-whatsapp" target="_blank">Pedir ahora</a>
-            </div>
-        </div>
+    <div id="category-msg-container" class="category-message"></div>
 
-        <div class="product-card" data-category="filtros">
-            <img src="https://via.placeholder.com/250x200?text=Filtro+Aire" alt="Filtro" class="product-img">
-            <div class="product-info">
-                <span class="category-tag">Filtros</span>
-                <h3 class="product-title">Filtro de Aire Toyota Yaris</h3>
-                <div class="price">S/ 35.00</div>
-                <a href="https://wa.me/51904850808?text=Hola, me interesa el Filtro de Aire Toyota Yaris" class="btn-card-whatsapp" target="_blank">Pedir ahora</a>
+    <div class="products-container" id="productsGrid">
+        <div class="loading">Cargando productos de AMELI'S... <i class="fas fa-spinner fa-spin"></i></div>
+    </div>
+
+    <footer>
+        <div class="footer-logo">AMELI<span>'</span>S</div>
+        <div class="footer-info">
+            <p>📍 Juliaca, Puno - Perú</p>
+            <p>📦 Envíos a todo el país</p>
+        </div>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+            <a href="https://wa.me/51904850808"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <div class="footer-copyright">
+            &copy; 2025 AMELI'S. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <a href="https://wa.me/51904850808?text=Hola%20AMELIS,%20tengo%20una%20duda..." class="btn-wsp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <div class="float-cart" onclick="openCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+    </div>
+
+    <div class="cart-modal modal" id="cart-modal" onclick="if(event.target === this) closeCart()">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Tu Carrito <i class="fas fa-shopping-cart" style="font-size:1rem; color:#aaa;"></i></h2>
+                <span onclick="closeCart()" style="font-size:1.5rem;cursor:pointer;color:#aaa;">&times;</span>
+            </div>
+            <div id="cart-items-container"></div>
+            <div class="cart-footer">
+                <div class="cart-total-row">
+                    <span>Total:</span>
+                    <span id="cart-total">S/ 0.00</span>
+                </div>
+                <a href="#" class="btn-whatsapp" onclick="checkout()">
+                    <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                </a>
+                <button class="btn-continue" onclick="closeCart()">Seguir Comprando</button>
             </div>
         </div>
+    </div>
+
+    <div class="modal" id="cachina-modal" onclick="if(event.target === this) closeCachinaModal()">
+        <div class="cachina-modal-content">
+            <span class="close-cachina" onclick="closeCachinaModal()">&times;</span>
+            <i class="fas fa-recycle" style="font-size: 3rem; color: #ff4757; margin-bottom: 10px;"></i>
+            <h2>Zona Cachina</h2>
+            <p>⚠️ Estás entrando a la sección de ropa de <b>segundo uso</b>.</p>
+            <p>Prendas únicas en buen estado (9/10). ¡Oportunidades que no se repiten!</p>
+            <button class="btn-cachina-ok" onclick="closeCachinaModal()">ENTENDIDO, VER ROPA</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONEXIÓN SUPABASE ---
+        const supabaseUrl = 'https://owlptfkiwxveeywwmnat.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93bHB0Zmtpd3h2ZWV5d3dtbmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NjA2MzEsImV4cCI6MjA3OTMzNjYzMX0.QK_dLOc3Xv7QVKRzcRPBEonL3OptG4JuvauFpfIVTAw';
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let allProducts = [];
+        let cart = [];
+
+        // --- CARGAR PRODUCTOS ---
+        async function fetchProducts() {
+            const grid = document.getElementById('productsGrid');
+            
+            let { data: productos, error } = await supabase
+                .from('productos')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error('Error:', error);
+                grid.innerHTML = '<p class="loading">Error de conexión.</p>';
+                return;
+            }
+
+            allProducts = productos;
+            renderProducts(allProducts);
+        }
+
+        // --- DIBUJAR PRODUCTOS ---
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = ''; 
+
+            if(!products || products.length === 0) {
+                grid.innerHTML = '<p class="loading">No hay productos disponibles.</p>';
+                return;
+            }
+
+            products.forEach(prod => {
+                let tagHtml = '';
+                if(prod.oferta === true) tagHtml = '<span class="tag">OFERTA</span>';
+                if(prod.categoria === 'cachina') tagHtml = '<span class="tag tag-sale">SEGUNDA</span>';
+
+                let botonHtml = '';
+                let stockMsg = '';
+                let currentStock = (prod.stock !== undefined && prod.stock !== null) ? prod.stock : 10;
+
+                if (currentStock > 0) {
+                    botonHtml = `<button class="btn-add" onclick="addToCart('${prod.nombre}', ${prod.precio})">AGREGAR +</button>`;
+                    if(currentStock <= 3) {
+                        stockMsg = `<div class="stock-alert">¡Solo quedan ${currentStock}!</div>`;
+                    }
+                } else {
+                    botonHtml = `<button class="btn-disabled" disabled>🚫 AGOTADO</button>`;
+                }
+
+                // CORRECCIÓN: Busca 'tallas' O 'talla' para que no salga error
+                let sizesHtml = (prod.tallas || prod.talla) ? `<div class="p-sizes">Tallas: ${prod.tallas || prod.talla}</div>` : '<div class="p-sizes">Talla: Única</div>';
+
+                grid.innerHTML += `
+                    <div class="product-card show">
+                        <div class="img-box">
+                            ${tagHtml}
+                            <img src="${prod.imagen}" alt="${prod.nombre}">
+                        </div>
+                        <div class="info-box">
+                            <div class="p-title">${prod.nombre}</div>
+                            <p class="p-desc">${prod.descripcion || ''}</p>
+                            ${sizesHtml}
+                            ${stockMsg}
+                            <span class="p-price">S/ ${parseFloat(prod.precio).toFixed(2)}</span>
+                            ${botonHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function searchProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allProducts.filter(p => p.nombre.toLowerCase().includes(input));
+            renderProducts(filtered);
+        }
+
+        function filterProducts(cat, btn) {
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if(cat === 'cachina') document.getElementById('cachina-modal').style.display = 'flex';
+            if (cat === 'todos') renderProducts(allProducts);
+            else renderProducts(allProducts.filter(p => p.categoria === cat));
+        }
+
+        function closeCachinaModal() { document.getElementById('cachina-modal').style.display = 'none'; }
+
+        function addToCart(name, price) {
+            let existing = cart.find(i => i.name === name);
+            if (existing) existing.quantity++; else cart.push({ name, price, quantity: 1 });
+            updateCartUI();
+            let btn = document.querySelector('.float-cart');
+            btn.style.transform = "scale(1.2)"; setTimeout(() => btn.style.transform = "scale(1)", 200);
+        }
+
+        function changeQty(name, chg) {
+            let item = cart.find(i => i.name === name);
+            if (item) { item.quantity += chg; if (item.quantity <= 0) cart = cart.filter(i => i.name !== name); }
+            updateCartUI();
+        }
+
+        function removeItem(name) { if(confirm('¿Eliminar?')) { cart = cart.filter(i => i.name !== name); updateCartUI(); } }
+
+        function updateCartUI() {
+            let total = 0; let count = cart.reduce((sum, i) => sum + i.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+            let container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">Tu carrito está vacío 🛒</p>';
+                document.querySelector('.btn-whatsapp').style.display = 'none'; 
+            } else {
+                document.querySelector('.btn-whatsapp').style.display = 'block';
+                cart.forEach(item => {
+                    total += item.price * item.quantity;
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div class="item-left"><div class="item-name">${item.name}</div><div class="item-price">S/ ${item.price} c/u</div></div>
+                            <div class="item-right">
+                                <div class="qty-box"><button class="qty-btn" onclick="changeQty('${item.name}', -1)">-</button><span class="qty-num">${item.quantity}</span><button class="qty-btn" onclick="changeQty('${item.name}', 1)">+</button></div>
+                                <button class="btn-trash" onclick="removeItem('${item.name}')"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('cart-total').innerText = "S/ " + total.toFixed(2);
+        }
+
+        function openCart() { document.getElementById('cart-modal').style.display = 'flex'; updateCartUI(); }
+        function closeCart() { document.getElementById('cart-modal').style.display = 'none'; }
+
+        function checkout() {
+            if (cart.length === 0) { alert("Carrito vacío"); return; }
+            let phone = "51904850808";
+            let msg = "Hola AMELI'S, quiero comprar:%0A";
+            let total = 0;
+            cart.forEach(i => { total += i.price * i.quantity; msg += `▪ ${i.quantity} x ${i.name} (S/ ${i.price * i.quantity})%0A`; });
+            msg += `%0A*Total a Pagar: S/ ${total.toFixed(2)}*`;
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>
